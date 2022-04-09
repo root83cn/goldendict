@@ -9,6 +9,7 @@
 #include <QKeyEvent>
 #include <QUrl>
 #include <QUrlQuery>
+#include <QCryptographicHash>
 
 namespace Utils
 {
@@ -46,6 +47,12 @@ inline bool ignoreKeyEvent(QKeyEvent *keyEvent) {
       keyEvent->key() == Qt::Key_Escape)
     return true;
   return false;
+}
+
+//computer string hash
+inline QString md5hash( const QString & str )
+{
+  return QString( QCryptographicHash::hash( str.toUtf8(), QCryptographicHash::Md5 ).toHex() );
 }
 
 namespace AtomicInt

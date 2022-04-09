@@ -178,13 +178,24 @@ QNetworkReply * ArticleNetworkAccessManager::createRequest( Operation op,
             Utils::Url::addQueryItem(url,"word",path.mid(1));
             url.setPath("");
             Utils::Url::addQueryItem(url,"group","1");
-
         }
     }
 
+    // cache management
+    auto reply = getCachedReply( url.url() );
+    if( reply )
+    {
+      sptr< Dictionary::DataRequestInstant > ico = new Dictionary::DataRequestInstant( true );
+      if( reply->data.size() > 0 )
+      {
+        ico->getData().resize( reply->data.size() );
+        memcpy( &( ico->getData().front() ), reply->data.data(), reply->data.size() );
+      }
+      return new ArticleResourceReply( this, req, ico, contentType );
+    }
     sptr< Dictionary::DataRequest > dr = getResource( url, contentType );
 
-    if ( dr.get() )
+    if( dr.get() )
       return new ArticleResourceReply( this, req, dr, contentType );
 
     //dr.get() can be null. code continue to execute.
@@ -208,9 +219,6 @@ QNetworkReply * ArticleNetworkAccessManager::createRequest( Operation op,
     //GD_DPRINTF( "Referer: %s\n", referer.data() );
 
     QUrl refererUrl = QUrl::fromEncoded( referer );
-
-    //GD_DPRINTF( "Considering %s vs %s\n", getHostBase( req.url() ).toUtf8().data(),
-    //        getHostBase( refererUrl ).toUtf8().data() );
 
     if ( !req.url().host().endsWith( refererUrl.host() ) &&
          getHostBase( req.url() ) != getHostBase( refererUrl ) && !req.url().scheme().startsWith("data") )
@@ -330,9 +338,6 @@ sptr< Dictionary::DataRequest > ArticleNetworkAccessManager::getResource(
   if ( ( url.scheme() == "bres" || url.scheme() == "gdau" || url.scheme() == "gdvideo" || url.scheme() == "gico" ) &&
        url.path().size() )
   {
-    //GD_DPRINTF( "Get %s\n", req.url().host().toLocal8Bit().data() );
-    //GD_DPRINTF( "Get %s\n", req.url().path().toLocal8Bit().data() );
-
     string id = url.host().toStdString();
 
     bool search = ( id == "search" );
@@ -356,7 +361,7 @@ sptr< Dictionary::DataRequest > ArticleNetworkAccessManager::getResource(
             }
             try
             {
-              return  dictionaries[ x ]->getResource( Utils::Url::path( url ).mid( 1 ).toUtf8().data() );
+              return dictionaries[ x ]->getResource( Utils::Url::path( url ).mid( 1 ).toUtf8().data() );
             }
             catch( std::exception & e )
             {
@@ -378,6 +383,22 @@ sptr< Dictionary::DataRequest > ArticleNetworkAccessManager::getResource(
   }
 
   return sptr< Dictionary::DataRequest >();
+}
+
+CacheReply * ArticleNetworkAccessManager::getCachedReply( QString const & url )
+{
+  QString hashKey = Utils::md5hash( url );
+  auto cacheReply = cachedReplies[ hashKey];
+  if(cacheReply){
+    qDebug()<<"hit cache:"<<url;
+  }
+  return cacheReply;
+}
+
+void ArticleNetworkAccessManager::setCachedReply( QString const & url,CacheReply *  reply )
+{
+  QString hashKey = Utils::md5hash( url );
+  cachedReplies.insert(hashKey,reply);
 }
 
 ArticleResourceReply::ArticleResourceReply( QObject * parent,
@@ -436,7 +457,7 @@ qint64 ArticleResourceReply::bytesAvailable() const
 {
   qint64 avail = req->dataSize();
   
-  if ( avail < 0 )
+  if ( avail <= 0 )
     return 0;
   
   return avail - alreadyRead + QNetworkReply::bytesAvailable();
@@ -453,7 +474,7 @@ qint64 ArticleResourceReply::readData( char * out, qint64 maxSize )
   
   qint64 avail = req->dataSize();
 
-  if ( avail < 0 )
+  if ( avail <= 0 )
     return finished ? -1 : 0;
 
   qint64 left = avail - alreadyRead;
@@ -476,6 +497,19 @@ qint64 ArticleResourceReply::readData( char * out, qint64 maxSize )
     return -1;
   else
     return toRead;
+}
+
+vector< char > ArticleResourceReply::getAllData()
+{
+  vector< char > buffer;
+  buffer.resize( req->dataSize() );
+  req->getDataSlice( 0, req->dataSize(), &buffer.front() );
+  return buffer;
+}
+
+int ArticleResourceReply::dataSize()
+{
+  return req->dataSize();
 }
 
 void ArticleResourceReply::readyReadSlot()

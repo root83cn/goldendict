@@ -12,7 +12,6 @@
 #include <QWebEngineUrlSchemeHandler>
 #include <QWebEngineUrlRequestJob>
 #include <QNetworkAccessManager>
-
 #include "dictionary.hh"
 #include "article_maker.hh"
 
@@ -91,6 +90,9 @@ protected:
   { return baseReply->write( data, maxSize ); }
 };
 
+struct CacheReply{
+  vector<char> data;
+};
 
 class ArticleNetworkAccessManager: public QNetworkAccessManager
 {
@@ -100,6 +102,7 @@ class ArticleNetworkAccessManager: public QNetworkAccessManager
   bool const & disallowContentFromOtherSites;
   bool const & hideGoldenDictHeader;
   QMimeDatabase db;
+  QCache< QString, CacheReply > cachedReplies;
 
 public:
 
@@ -128,6 +131,10 @@ public:
                                          QNetworkRequest const & req,
                                          QIODevice * outgoingData = nullptr);
 
+  virtual CacheReply*  getCachedReply( QString const & url );
+
+  virtual void setCachedReply( QString const & url,  CacheReply *  reply );
+
 };
 
 class ArticleResourceReply: public QNetworkReply
@@ -155,6 +162,10 @@ protected:
   virtual void abort()
   {}
   virtual qint64 readData( char * data, qint64 maxSize );
+
+public:
+  virtual vector< char >  getAllData();
+  virtual int  dataSize();
 
   // We use the hackery below to work around the fact that we need to emit
   // ready/finish signals after we've been constructed.
