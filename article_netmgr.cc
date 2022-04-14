@@ -181,18 +181,6 @@ QNetworkReply * ArticleNetworkAccessManager::createRequest( Operation op,
         }
     }
 
-    // cache management
-    auto reply = getCachedReply( url.url() );
-    if( reply )
-    {
-      sptr< Dictionary::DataRequestInstant > ico = new Dictionary::DataRequestInstant( true );
-      if( reply->data.size() > 0 )
-      {
-        ico->getData().resize( reply->data.size() );
-        memcpy( &( ico->getData().front() ), reply->data.data(), reply->data.size() );
-      }
-      return new ArticleResourceReply( this, req, ico, contentType );
-    }
     sptr< Dictionary::DataRequest > dr = getResource( url, contentType );
 
     if( dr.get() )
@@ -398,6 +386,7 @@ CacheReply * ArticleNetworkAccessManager::getCachedReply( QString const & url )
 void ArticleNetworkAccessManager::setCachedReply( QString const & url,CacheReply *  reply )
 {
   QString hashKey = Utils::md5hash( url );
+  qDebug() << "cache items:" << url;
   cachedReplies.insert(hashKey,reply);
 }
 
@@ -474,7 +463,7 @@ qint64 ArticleResourceReply::readData( char * out, qint64 maxSize )
   
   qint64 avail = req->dataSize();
 
-  if ( avail <= 0 )
+  if ( avail < 0 )
     return finished ? -1 : 0;
 
   qint64 left = avail - alreadyRead;
@@ -502,8 +491,11 @@ qint64 ArticleResourceReply::readData( char * out, qint64 maxSize )
 vector< char > ArticleResourceReply::getAllData()
 {
   vector< char > buffer;
-  buffer.resize( req->dataSize() );
-  req->getDataSlice( 0, req->dataSize(), &buffer.front() );
+  if( req->dataSize() > 0 )
+  {
+    buffer.resize( req->dataSize() );
+    req->getDataSlice( 0, req->dataSize(), &buffer.front() );
+  }
   return buffer;
 }
 

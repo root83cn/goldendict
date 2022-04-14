@@ -10,6 +10,28 @@ void ResourceSchemeHandler::requestStarted(QWebEngineUrlRequestJob *requestJob)
   QNetworkRequest request;
   request.setUrl( url );
   request.setAttribute(QNetworkRequest::CacheLoadControlAttribute, QNetworkRequest::PreferCache);
+
+    // cache management
+  auto cache = mManager.getCachedReply( url.url() );
+  if( cache )
+  {
+    sptr< Dictionary::DataRequestInstant > ico = new Dictionary::DataRequestInstant( true );
+    if( cache->data.size() > 0 )
+    {
+      ico->getData().resize( cache->data.size() );
+      memcpy( &( ico->getData().front() ), cache->data.data(), cache->data.size() );
+    }
+    // get the cache will remove the cache ,set the cache again to enable future access.
+    // setCachedReply(url.url(),reply);
+    QNetworkReply * reply1 = new ArticleResourceReply( this, request, ico ,nullptr);
+    QMimeType mineType     = db.mimeTypeForUrl( url );
+    QString contentType    = mineType.name();
+    // Reply segment
+    requestJob->reply( contentType.toLatin1(), reply1 );
+    connect( requestJob, &QObject::destroyed, reply1, &QObject::deleteLater );
+    return;
+  }
+
   QNetworkReply * reply = this->mManager.createRequest( QNetworkAccessManager::GetOperation, request );
 
   connect( reply,
@@ -20,13 +42,14 @@ void ResourceSchemeHandler::requestStarted(QWebEngineUrlRequestJob *requestJob)
              ArticleResourceReply * const dr = qobject_cast< ArticleResourceReply * >( reply );
              if( dr )
              {
-               CacheReply * cr     = new CacheReply();
-               vector< char > data = dr->getAllData();
                if( dr->dataSize() > 0 )
                {
+                 CacheReply * cr = new CacheReply();
+
+                 vector< char > data = dr->getAllData();
                  cr->data.assign( data.begin(), data.end() );
+                 mManager.setCachedReply( url.url(), cr );
                }
-               mManager.setCachedReply( url.url(), cr );
              }
 
              if( reply->error() == QNetworkReply::ContentNotFoundError )
