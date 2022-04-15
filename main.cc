@@ -269,6 +269,7 @@ int main( int argc, char ** argv )
   qputenv("QT_AUTO_SCREEN_SCALE_FACTOR", "1");
   QApplication::setHighDpiScaleFactorRoundingPolicy(Qt::HighDpiScaleFactorRoundingPolicy::PassThrough);
 
+  qputenv("QTWEBENGINE_CHROMIUM_FLAGS","--enable-features=ReducedReferrerGranularity");
   QHotkeyApplication app( "GoldenDict", argc, argv );
   LogFilePtrGuard logFilePtrGuard;
 

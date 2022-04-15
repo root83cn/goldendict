@@ -12,4 +12,7 @@ void WebUrlRequestInterceptor::interceptRequest( QWebEngineUrlRequestInfo &info)
     emit linkClicked(info.requestUrl());
     info.block(true);
   }
+  else{
+    info.setHttpHeader("referer",QByteArray());
+  }
 }
