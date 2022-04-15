@@ -15,20 +15,25 @@ void ResourceSchemeHandler::requestStarted(QWebEngineUrlRequestJob *requestJob)
   auto cache = mManager.getCachedReply( url.url() );
   if( cache )
   {
-    sptr< Dictionary::DataRequestInstant > ico = new Dictionary::DataRequestInstant( true );
-    if( cache->data.size() > 0 )
-    {
-      ico->getData().resize( cache->data.size() );
-      memcpy( &( ico->getData().front() ), cache->data.data(), cache->data.size() );
-    }
-    // get the cache will remove the cache ,set the cache again to enable future access.
-    // setCachedReply(url.url(),reply);
-    QNetworkReply * reply1 = new ArticleResourceReply( this, request, ico ,nullptr);
+//    sptr< Dictionary::DataRequestInstant > ico = new Dictionary::DataRequestInstant( true );
+//    if( cache->data.size() > 0 )
+//    {
+//      ico->getData().resize( cache->data.size() );
+//      memcpy( &( ico->getData().front() ), cache->data.data(), cache->data.size() );
+//    }
+//    // get the cache will remove the cache ,set the cache again to enable future access.
+//    // setCachedReply(url.url(),reply);
+//    QNetworkReply * reply1 = new ArticleResourceReply( this, request, ico ,nullptr);
     QMimeType mineType     = db.mimeTypeForUrl( url );
     QString contentType    = mineType.name();
     // Reply segment
-    requestJob->reply( contentType.toLatin1(), reply1 );
-    connect( requestJob, &QObject::destroyed, reply1, &QObject::deleteLater );
+    QBuffer * buffer         = new QBuffer(this);
+    
+    buffer->setData(&cache->data.front(),cache->data.size());
+    buffer->open( QBuffer::ReadOnly );
+    requestJob->reply( contentType.toLatin1(), buffer );
+    connect( requestJob, &QObject::destroyed, buffer, &QObject::deleteLater );
+    //buffer.close();
     return;
   }
 
