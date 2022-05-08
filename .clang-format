@@ -1,28 +1,66 @@
+# Format Style Options - Created with Clang Power Tools
 ---
-BasedOnStyle: LLVM
-AlignAfterOpenBracket: Align
+AccessModifierOffset: -1
+AlignAfterOpenBracket: DontAlign
+AlignConsecutiveAssignments: Consecutive
 AlignEscapedNewlines: Left
-AllowAllArgumentsOnNextLine: 'false'
-AllowShortBlocksOnASingleLine: 'false'
-AllowShortFunctionsOnASingleLine: None
-AllowShortIfStatementsOnASingleLine: Never
-BinPackArguments: 'false'
-BinPackParameters: 'false'
-BreakBeforeBraces: Allman
+AlignOperands: DontAlign
+AlignTrailingComments: false
+AllowAllArgumentsOnNextLine: false
+AllowShortBlocksOnASingleLine: Empty
+AllowShortLambdasOnASingleLine: None
+AllowShortEnumsOnASingleLine: false
+AlwaysBreakBeforeMultilineStrings: true
+BasedOnStyle: LLVM
+BinPackArguments: false
+BinPackParameters: false
+BraceWrapping: 
+  AfterCaseLabel: false
+  AfterClass: true
+  AfterControlStatement: false
+  AfterEnum: false
+  AfterFunction: true
+  AfterNamespace: false
+  AfterObjCDeclaration: false
+  AfterStruct: false
+  AfterUnion: false
+  AfterExternBlock: false
+  BeforeCatch: false
+  BeforeElse: true
+  IndentBraces: false
+  SplitEmptyFunction: true
+  SplitEmptyRecord: false
+  SplitEmptyNamespace: false
+  BeforeLambdaBody: false
+  BeforeWhile: false
+BreakBeforeBinaryOperators: NonAssignment
+BreakBeforeBraces: Custom
+BreakBeforeTernaryOperators: false
 BreakConstructorInitializers: AfterColon
-ColumnLimit: '120'
-ConstructorInitializerAllOnOneLineOrOnePerLine: 'true'
-ConstructorInitializerIndentWidth: '2'
-ContinuationIndentWidth: '2'
-MaxEmptyLinesToKeep: '1'
+BreakStringLiterals: false
+ColumnLimit: 120
+ConstructorInitializerAllOnOneLineOrOnePerLine: true
+ContinuationIndentWidth: 2
+DeriveLineEnding: false
+EmptyLineBeforeAccessModifier: Leave
+ExperimentalAutoDetectBinPacking: true
+FixNamespaceComments: false
+IncludeBlocks: Regroup
+IndentCaseLabels: true
+IndentPPDirectives: AfterHash
+MaxEmptyLinesToKeep: 2
+NamespaceIndentation: Inner
 PointerAlignment: Middle
-SortIncludes: 'false'
-SortUsingDeclarations: 'false'
+ReflowComments: false
+SortIncludes: false
+SortUsingDeclarations: false
+SpaceAfterCStyleCast: true
+SpaceBeforeCtorInitializerColon: false
+SpaceBeforeInheritanceColon: false
 SpaceBeforeParens: Never
-SpacesInAngles: 'true'
-SpacesInParentheses: 'true'
-SpacesInSquareBrackets: 'true'
-UseTab: Never
-AlignConsecutiveAssignments: AcrossComments
-
+SpacesInAngles: true
+SpacesInConditionalStatement: true
+SpacesInParentheses: true
+SpacesInSquareBrackets: true
+UseTab: AlignWithSpaces
 ...
