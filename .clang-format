@@ -17,13 +17,13 @@ BinPackParameters: false
 BraceWrapping: 
   AfterCaseLabel: false
   AfterClass: true
-  AfterControlStatement: false
+  AfterControlStatement: true
   AfterEnum: false
   AfterFunction: true
   AfterNamespace: false
   AfterObjCDeclaration: false
-  AfterStruct: false
-  AfterUnion: false
+  AfterStruct: true
+  AfterUnion: true
   AfterExternBlock: false
   BeforeCatch: false
   BeforeElse: true
@@ -47,7 +47,7 @@ ExperimentalAutoDetectBinPacking: true
 FixNamespaceComments: false
 IncludeBlocks: Regroup
 IndentCaseLabels: true
-IndentPPDirectives: AfterHash
+IndentPPDirectives: BeforeHash
 MaxEmptyLinesToKeep: 2
 NamespaceIndentation: Inner
 PointerAlignment: Middle
@@ -62,5 +62,5 @@ SpacesInAngles: true
 SpacesInConditionalStatement: true
 SpacesInParentheses: true
 SpacesInSquareBrackets: true
-UseTab: AlignWithSpaces
+UseTab: Never
 ...
